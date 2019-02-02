@@ -1,0 +1,92 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Memory.jack
+
+/**
+ * This library provides two services: direct access to the computer's main
+ * memory (RAM), and allocation and recycling of memory blocks. The Hack RAM
+ * consists of 32,768 words, each holding a 16-bit binary number.
+ */
+class Memory {
+     static Array ram, heap;
+     // pointers to front and end of freelist
+     static int head;
+     static int tail;
+
+    /** Initializes the class. */
+    function void init() {
+      // base address of ram
+      let ram = 0;
+      //starting pointer for head memory
+      // relative address scheme from 2048 base address
+      let head = 0;
+      let tail = 0;
+      // base address of heap
+      let heap = 2048;
+      // next available free list (entire heap is available with one long segment)
+      let heap[head] = 0;
+      // 16384 - 2048 (size of heap in RAM) RAM locations 2048-16383
+      // max free blocks available
+      let heap[head + 1] = 14334;
+
+      return;
+    }
+
+    /** Returns the RAM value at the given address. */
+    function int peek(int address) {
+        return ram[address];
+    }
+
+    /** Sets the RAM value at the given address to the given value. */
+    function void poke(int address, int value) {
+        let ram[address] = value;
+        return;
+    }
+
+    /** Finds an available RAM block of the given size and returns
+     *  a reference to its base address. */
+    function int alloc(int size) {
+      var int nextPointer,  current, curSize, retAddress, index;
+      let current = head;
+      let nextPointer = heap[current];
+      let curSize = heap[current + 1];
+      // checking if fragment size is available for allocation
+      while (curSize < (size + 2)){
+        // move to nextPointer
+        let current = nextPointer;
+        let nextPointer = heap[current];
+        let curSize = heap[current + 1];
+      }
+      // fragment address to give
+      let index = curSize - (size + 2);
+      let heap[current +1 + index + 1] = current + 1 + index +1;
+      let heap[current +2 + index + 1] = size;
+      // address heap + ( curSize - size)
+      let retAddress = heap + current + 3 + index + 1;
+      // update size of next pointer
+      let heap[current + 1] = curSize - (size + 2);
+      return retAddress;
+    }
+
+    /** De-allocates the given object (cast as an array) by making
+     *  it available for future allocations. */
+    function void deAlloc(Array o) {
+       //address in heap array
+       var int address, prevtail;
+       let prevtail = tail;
+       let address = o - heap;
+       let heap[prevtail] = address - 2;
+       // update tail
+       let tail = address - 2;
+       return;
+    }
+
+    function int getTail(){
+        return tail;
+    }
+
+    function int getHead(){
+      return head;
+    }
+}

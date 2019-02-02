@@ -1,0 +1,129 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Math.jack
+
+/**
+ * A library of commonly used mathematical functions.
+ * Note: Jack compilers implement multiplication and division using OS method calls.
+ */
+class Math {
+
+
+    /** Initializes the library. */
+    function void init() {
+      return;
+    }
+
+    /** Returns the absolute value of x. */
+    function int abs(int x) {
+      var int result;
+      if (x < 0){
+        let result = 0 - x;
+      } else {
+        let result = x;
+      }
+      return result;
+    }
+
+    /** Returns the product of x and y.
+     *  When a Jack compiler detects the multiplication operator '*' in the
+     *  program's code, it handles it by invoking this method. In other words,
+     *  the Jack expressions x*y and multiply(x,y) return the same value.
+     */
+
+    function int multiply(int x, int y) {
+
+      var int sum, shiftedX, index, absx, absy;
+      let sum = 0;
+      let index = 0;
+      // default case
+      let absx = x;
+      let absy = y;
+      // both are neg, so can use abs
+      if (x < 0 & y < 0) {
+        let absx = Math.abs(x);
+        let absy = Math.abs(y);
+      }
+      // reverse signs because Math.bit works with positive nos.
+      if (x > 0 & y < 0){
+        let absx = 0 -x;
+        let absy = Math.abs(y);
+      }
+      let shiftedX = absx;
+      while (index < 15) {
+        if (Sys.bit(absy, index)) {
+          let sum = sum + shiftedX;
+        }
+        let shiftedX = shiftedX + shiftedX;
+        let index = index + 1;
+        }
+        return sum;
+      }
+
+
+    /** Returns the integer part of x/y.
+     *  When a Jack compiler detects the multiplication operator '/' in the
+     *  program's code, it handles it by invoking this method. In other words,
+     *  the Jack expressions x/y and divide(x,y) return the same value.
+     */
+    function int divide(int x, int y) {
+       var int result;
+       let result =  Math.recursiveDivide(Math.abs(x), Math.abs(y));
+       if ((x < 0  & y < 0) | (x > 0 & y > 0)){
+          return result;
+       } else {
+          return (-1 * result);
+       }
+    }
+
+    function int recursiveDivide(int x, int y) {
+        var int q;
+        if (y > x | y < 0){
+          return 0;
+        }
+        let q = Math.recursiveDivide(x, 2*y);
+        if ((x - (2*q*y)) < y){
+          return (2 * q);
+        } else {
+           return ((2 * q) + 1);
+        }
+    }
+
+    /** Returns the integer part of the square root of x. */
+    function int sqrt(int x) {
+      var int y, index, r;
+      var array twoToThe;
+
+      let twoToThe = Sys.getTwoToThe();
+      let y = 0;
+      let index = 7;
+      while (~(index < 0)) {
+          let r = y+twoToThe[index];
+          let r = r * r;
+          if (~(r > x) & r > 0) {
+              let y = y + twoToThe[index];
+          }
+          let index = index -1;
+      }
+      return y;
+    }
+
+    /** Returns the greater number. */
+    function int max(int a, int b) {
+        if (a > b){
+              return a;
+        } else {
+          return b;
+        }
+    }
+
+    /** Returns the smaller number. */
+    function int min(int a, int b) {
+      if (a < b){
+        return a;
+      } else {
+        return b;
+      }
+    }
+}

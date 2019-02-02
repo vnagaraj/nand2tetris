@@ -1,0 +1,112 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Sys.jack
+
+/**
+ * A library that supports various program execution services.
+ */
+class Sys {
+
+    static Array twoToThe;
+    // array to map integer to ASCI char
+    static Array intCharMap;
+
+    /** Performs all the initializations required by the OS. */
+    function void init() {
+      do Memory.init();
+      do Sys.setTwoToTheArray();
+      do Sys.setIntCharMap();
+      do Math.init();
+      do Screen.init();
+      do Output.init();
+      do Keyboard.init();
+      do Main.main();
+      do Sys.halt();
+      return;
+    }
+
+    /** Halts the program execution. */
+    function void halt() {
+      var boolean set;
+      let set = true;
+      while (set){
+        let set = true;
+      }
+      return;
+    }
+
+    /** Waits approximately duration milliseconds and returns.  */
+    function void wait(int duration) {
+      var int delay;
+      let delay = 0;
+      while (delay < 5 * duration){
+        let delay = delay + 1;
+      }
+      return;
+    }
+
+    /** Displays the given error code in the form "ERR<errorCode>",
+     *  and halts the program's execution. */
+    function void error(int errorCode) {
+      do Output.printString("ERR<");
+      do Output.printInt(errorCode);
+      do Output.printChar(">");
+      do Sys.halt();
+      return;
+    }
+
+    /***
+    *** Helper functions used by other OS classes
+    */
+    // used in screen class for Oring the bits when drawing pixel
+    function void setTwoToTheArray(){
+      var int index, val;
+      let index = 0;
+      let twoToThe = Array.new(16);
+      let val = 1;
+      while (index < 16){
+        let twoToThe[index] = val;
+        let val = val + val;
+        let index = index + 1;
+      }
+      return;
+    }
+
+    /***
+    *** Helper function used in String class for mapping integer with asciCode
+    */
+    function void setIntCharMap(){
+      var int index, asciCode;
+      let index = 0;
+      let asciCode = 48;
+      let intCharMap = Array.new(10);
+      while (index < 10){
+        let intCharMap[index] = asciCode;
+        let index = index + 1;
+        let asciCode = asciCode + 1;
+      }
+      return;
+    }
+
+    function Array getTwoToThe(){
+      return twoToThe;
+    }
+
+    function Array getIntCharMap(){
+      return intCharMap;
+    }
+
+    /**
+    * Returns true if the j-th bit of the integer x is 1 and false otherwise
+    *
+    *
+    */
+    function boolean bit(int x, int j) {
+        if ( (twoToThe[j] & x) = twoToThe[j]){
+          return true;
+        }
+        return false;
+    }
+
+}

@@ -1,0 +1,187 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/String.jack
+
+/**
+ * Represents character strings. In addition for constructing and disposing
+ * strings, the class features methods for getting and setting individual
+ * characters of the string, for erasing the string's last character,
+ * for appending a character to the string's end, and more typical
+ * string-oriented operations.
+ */
+class String {
+
+    /** constructs a new empty string with a maximum length of maxLength
+     *  and initial length of 0. */
+     field Array charArray;
+     field int currentLength;
+     field int arrLength;
+
+    constructor String new(int maxLength) {
+        if (maxLength > 0){
+          let charArray = Array.new(maxLength);
+        }
+        let arrLength = maxLength;
+        let currentLength = 0;
+        return this;
+    }
+
+    /** Disposes this string. */
+    method void dispose() {
+      do charArray.dispose();
+      return;
+    }
+
+    /** Returns the current length of this string. */
+    method int length() {
+      return currentLength;
+    }
+
+    /** Returns the character at the j-th location of this string. */
+    method char charAt(int j) {
+      return charArray[j];
+    }
+
+    /** Sets the character at the j-th location of this string to c. */
+    method void setCharAt(int j, char c) {
+        let charArray[j] = c;
+        return;
+    }
+
+    /** Appends c to this string's end and returns this string. */
+    method String appendChar(char c) {
+        if (currentLength < arrLength){
+          let charArray[currentLength] = c;
+          let currentLength = currentLength + 1;
+        } else {
+          // String already full
+          do Sys.error(-1);
+       }
+       return this;
+    }
+
+    method Array getCharArray(){
+        return charArray;
+    }
+
+
+    /** Erases the last character from this string. */
+    method void eraseLastChar() {
+      let currentLength = currentLength - 1;
+      return;
+    }
+
+    method int getDigitFromChar(char c){
+      var int index;
+      var Array intCharMap;
+      let index = 0;
+      let intCharMap = Sys.getIntCharMap();
+      while (index < 10){
+        if (intCharMap[index] = c) {
+          return index;
+        }
+        let index = index + 1;
+      }
+      return -1;
+    }
+
+    /** Returns the integer value of this string,
+     *  until a non-digit character is detected. */
+    method int intValue() {
+      var int index, d, v;
+      var char c;
+      var boolean negative;
+      let v = 0;
+      if (charAt(0) = 45) {
+          let negative = true;
+          let index = 1;
+      } else{
+        let negative = false;
+        let index = 0;
+      }
+      while (index < currentLength){
+        let c = charAt(index);
+        let d = getDigitFromChar(c);
+        let v = (v * 10) + d;
+        let index = index + 1;
+      }
+      if (negative){
+        return (-1 * v);
+      }
+      return v;
+    }
+
+    /** Sets this string to hold a representation of the given value. */
+    method void setInt(int val) {
+      var int size;
+      var String s;
+      var boolean negative;
+      if (val  < 0){
+        let negative = true;
+      } else {
+        let negative = false;
+      }
+      let val = Math.abs(val);
+      let size = getSize(val);
+      let s = int2String(val, size, negative);
+      do dispose();
+      let charArray = s.getCharArray();
+      let currentLength = s.length();
+      return;
+    }
+
+    method String getStringFromChar(char c, int size, boolean negative){
+       var String s;
+       if (negative){
+          let size = size + 1;
+       }
+       let s = String.new(size);
+       //- sign
+       if (negative){
+        do s.appendChar(45);
+       }
+       do s.appendChar(c);
+       return s;
+    }
+
+    method int getSize(int val){
+        if (val < 10){
+          return 1;
+        }
+        return  1 + getSize(val/10);
+    }
+
+    method String int2String(int val, int size, boolean negative) {
+      var int lastDigit, index;
+      var char c;
+      var String s;
+      var Array intcharMap;
+      let lastDigit = val - ((val/10) * 10);
+      let intcharMap = Sys.getIntCharMap();
+      let c = intcharMap[lastDigit];
+      if (val < 10){
+        return getStringFromChar(c, size, negative);
+      }
+      let s =  int2String(val/10, size, negative);
+      return s.appendChar(c);
+    }
+
+    /** Returns the new line character. */
+    function char newLine() {
+      //ASCII code for newline
+      return 128;
+    }
+
+    /** Returns the backspace character. */
+    function char backSpace() {
+      // ASCII code for backspace
+      return 129;
+    }
+
+    /** Returns the double quote (") character. */
+    function char doubleQuote() {
+      //ASCII code for doublequote
+      return 34;
+    }
+}
